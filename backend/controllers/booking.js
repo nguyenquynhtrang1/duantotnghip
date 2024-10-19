@@ -352,7 +352,6 @@ const getRevenueByRoomType = async (req, res) => {
 
         // Thực thi truy vấn
         const result = await Booking.aggregate([matchStage, groupStage, projectStage, sortStage]);
-        console.log("🚀 ~ getRevenueByRoomType ~ result:", result)
         return res.status(200).json({ data: result, message: "Revenue retrieved successfully" });
     } catch (error) {
         console.log("🚀 ~ getRevenueByRoomType ~ error:", error)
@@ -404,7 +403,7 @@ const createUrlPayment = async (req, res) => {
         secretKey: "K951B6PE1waDMi640xX08PD3vg6EkVlz",
         orderInfo: "Pay with MoMo",
         partnerCode: "MOMO",
-        ipnUrl: "https://40d5-2402-800-61e2-67b6-b9f8-5052-4833-b3c3.ngrok-free.app/api/bookings/momo-webhook",
+        ipnUrl: process.env.IPN_URL,
         requestType: "payWithMethod",
         extraData: "",
         orderGroupId: "",
