@@ -27,48 +27,20 @@ const getBookings = async (req, res) => {
         matchConditions.roomType = roomType;
     }
 
-    const aggregatePipeline = [
-        { $match: matchConditions },
-        {
-            $lookup: {
-                from: 'users',
-                localField: 'user',
-                foreignField: '_id',
-                as: 'user'
-            }
-        },
-        { $unwind: '$user' },
-        {
-            $lookup: {
-                from: 'rooms',
-                localField: 'room',
-                foreignField: '_id',
-                as: 'room'
-            }
-        },
-        { $unwind: '$room' },
-        {
-            $match: search ? {
-                $or: [
-                    { 'user.username': { $regex: search, $options: 'i' } },
-                    { 'user.email': { $regex: search, $options: 'i' } },
-                    { 'room.name': { $regex: search, $options: 'i' } },
-                    { 'roomType': { $regex: search, $options: 'i' } },
-                    { '_id': mongoose.Types.ObjectId.isValid(search) ? new mongoose.Types.ObjectId(search) : null }
-                ]
-            } : {}
-        },
-
-        // Sorting
-        { $sort: { [orderBy]: sortBy === "desc" ? -1 : 1 } },
-
-        // Pagination
-        { $skip: (page - 1) * limit },
-        { $limit: parseInt(limit) }
-    ];
-
+    if (search) {
+        matchConditions.$or = [
+            { 'user.username': { $regex: search, $options: 'i' } },
+            { 'user.email': { $regex: search, $options: 'i' } },
+            { 'room.name': { $regex: search, $options: 'i' } },
+            { 'roomType': { $regex: search, $options: 'i' } },
+            { '_id': mongoose.Types.ObjectId.isValid(search) ? new mongoose.Types.ObjectId(search) : null }
+        ]
+    }
     try {
-        const bookings = await Booking.aggregate(aggregatePipeline);
+        const bookings = await Booking.find(matchConditions)
+            .sort({ [orderBy]: sortBy })
+            .limit(limit * 1)
+            .skip((page - 1) * limit);
         const total = await Booking.countDocuments(matchConditions);
         res.status(200).json({ data: bookings, total, page, limit, message: "Bookings retrieved successfully" });
     } catch (error) {
@@ -82,10 +54,7 @@ const getBooking = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const booking = await Booking.findById(id)
-            .populate('user')
-            .populate('room')
-
+        const booking = await Booking.findById(id);
         if (!booking) {
             return res.status(404).json({ message: "Booking does not exist" });
         }
@@ -101,7 +70,7 @@ const clientCreateBooking = async (req, res) => {
     try {
         const { checkIn, checkOut, roomId } = req.body;
         const existingBooking = await Booking.findOne({
-            room: roomId,
+            'room._id': roomId,
             status: { $in: ["Confirmed", "Pending"] },
             $or: [
                 { checkIn: { $gte: checkIn, $lt: checkOut } },
@@ -116,8 +85,18 @@ const clientCreateBooking = async (req, res) => {
         const discountPrice = room.price - (room.price / 100) * room.discount;
         const totalCost = noOfDays * discountPrice
         const body = {
-            user: req.user._id,
-            room: roomId,
+            user: {
+                _id: req.user._id.toString(),
+                username: req.user.username,
+                email: req.user.email,
+                phone: req.user.phone
+            },
+            room: {
+                _id: room._id.toString(),
+                name: room.name,
+                price: room.price,
+                discount: room.discount
+            },
             roomType: room.roomType.name,
             checkIn,
             checkOut,
@@ -144,7 +123,7 @@ const adminCreateBooking = async (req, res) => {
     try {
         const { checkIn, checkOut, roomId, userId } = req.body;
         const existingBooking = await Booking.findOne({
-            room: roomId,
+            'room._id': roomId,
             status: { $in: ["Confirmed", "Pending"] },
             $or: [
                 { checkIn: { $gte: checkIn, $lt: checkOut } },
@@ -154,13 +133,24 @@ const adminCreateBooking = async (req, res) => {
         if (existingBooking) {
             return res.status(400).json({ message: "Room is already booked for the selected dates" });
         }
+        const user = await User.findById(userId).select('-password');
         const room = await Room.findById(roomId).populate('roomType')
         const noOfDays = Math.ceil((new Date(checkOut) - new Date(checkIn)) / (24 * 60 * 60 * 1000))
         const discountPrice = room.price - (room.price / 100) * room.discount;
         const totalCost = noOfDays * discountPrice
         const body = {
-            user: userId,
-            room: roomId,
+            user: {
+                _id: user._id.toString(),
+                username: user.username,
+                email: user.email,
+                phone: user.phone
+            },
+            room: {
+                _id: room._id.toString(),
+                name: room.name,
+                price: room.price,
+                discount: room.discount
+            },
             roomType: room.roomType.name,
             checkIn,
             checkOut,
@@ -198,7 +188,7 @@ const adminUpdateBooking = async (req, res) => {
 
         if (status === "Cancelled" || status === "Completed") {
             const listDatesBooking = getDatesBetween(booking.checkIn, booking.checkOut);
-            await Room.findByIdAndUpdate(booking.room, {
+            await Room.findByIdAndUpdate(booking.room._id, {
                 $pull: {
                     invalidDates: { $in: listDatesBooking }
                 }
@@ -215,7 +205,7 @@ const adminUpdateBooking = async (req, res) => {
 const clientUpdateBooking = async (req, res) => {
     const { status } = req.body;
     try {
-        const booking = await Booking.findOne({ _id: req.params.id, user: req.user._id });
+        const booking = await Booking.findOne({ _id: req.params.id });
         if (!booking) {
             return res.status(404).json({ message: "Booking does not exist" });
         }
@@ -223,7 +213,7 @@ const clientUpdateBooking = async (req, res) => {
         await booking.save();
         if (status === "Cancelled" || status === "Completed") {
             const listDatesBooking = getDatesBetween(booking.checkIn, booking.checkOut);
-            await Room.findByIdAndUpdate(booking.room, {
+            await Room.findByIdAndUpdate(booking.room._id, {
                 $pull: {
                     invalidDates: { $in: listDatesBooking }
                 }
@@ -246,7 +236,7 @@ const deleteBooking = async (req, res) => {
             return res.status(404).json({ message: "Booking does not exist" });
         }
         const listDatesBooking = getDatesBetween(booking.checkIn, booking.checkOut);
-        await Room.findByIdAndUpdate(booking.room, {
+        await Room.findByIdAndUpdate(booking.room._id, {
             $pull: {
                 invalidDates: { $in: listDatesBooking }
             }
@@ -267,9 +257,7 @@ const getUserBookings = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: "User does not exist" });
         }
-        const bookings = await Booking.find({ user: req.user._id })
-            .populate('room')
-            .populate('user', '-password')
+        const bookings = await Booking.find({ 'user._id': req.user._id })
             .sort({ createdAt: -1 });
         return res.status(200).json({ data: bookings, message: "Bookings retrieved successfully" });
     }
@@ -557,13 +545,13 @@ const paymentWebhook = async (req, res) => {
 }
 
 const scheduleUpdateBooking = async () => {
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const oneHourAgo = new Date(Date.now() - 15 * 60 * 1000);
     const bookings = await Booking.find({ status: "Pending", createdAt: { $lt: oneHourAgo } });
     for (const booking of bookings) {
         booking.status = "Cancelled";
         await booking.save();
         const listDatesBooking = getDatesBetween(booking.checkIn, booking.checkOut);
-        await Room.findByIdAndUpdate(booking.room, {
+        await Room.findByIdAndUpdate(booking.room._id, {
             $pull: {
                 invalidDates: { $in: listDatesBooking }
             }

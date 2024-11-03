@@ -7,7 +7,7 @@ export const getReviews = async (
   params: GetListParamsReview
 ): Promise<GetListResponse<Review>> => {
   try {
-    const response = await api.get<GetListResponse<Review>>("/Reviews", {
+    const response = await api.get<GetListResponse<Review>>("/reviews", {
       params,
     });
     return response.data;

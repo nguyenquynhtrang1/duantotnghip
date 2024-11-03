@@ -184,7 +184,7 @@ export default function ListRoom() {
             <Button
               type="primary"
               onClick={() => {
-                setSelectedRoom(undefined);
+                setSelectedRoom({} as Room);
                 setOpenModal(true);
               }}
             >

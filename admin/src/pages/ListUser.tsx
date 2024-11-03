@@ -164,7 +164,7 @@ export default function ListUser() {
             <Button
               type="primary"
               onClick={() => {
-                setSelectedUser(undefined);
+                setSelectedUser({} as User);
                 setOpenModal(true);
               }}
             >

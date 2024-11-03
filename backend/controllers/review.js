@@ -7,12 +7,12 @@ export const createOrUpdateReview = async (req, res) => {
     try {
         const { roomId, ...reviewData } = req.body;
         let review = await Review.findOneAndUpdate(
-            { user: req.user._id, room: roomId },
+            { 'user._id': req.user._id, 'room._id': roomId },
             { ...reviewData },
             { new: true, upsert: true }
         );
         // update average rating of room
-        const reviews = await Review.find({ room: roomId });
+        const reviews = await Review.find({ 'room._id': roomId });
         const totalRating = reviews.reduce((acc, { rating = 0 }) => acc + rating, 0);
         const averageRating = totalRating / (reviews.length || 1);
         await Room.findByIdAndUpdate(roomId, { rating: averageRating });
@@ -32,49 +32,24 @@ export const getAllReviews = async (req, res) => {
             sortBy = "desc",
             search
         } = req.query;
+        const conditions = {};
 
-        const aggregatePipeline = [
-            {
-                $lookup: {
-                    from: 'users',
-                    localField: 'user',
-                    foreignField: '_id',
-                    as: 'user'
-                }
-            },
-            { $unwind: '$user' },
-            {
-                $lookup: {
-                    from: 'rooms',
-                    localField: 'room',
-                    foreignField: '_id',
-                    as: 'room'
-                }
-            },
-            { $unwind: '$room' },
-            {
-                $match: search ? {
-                    $or: [
-                        { 'user.username': { $regex: search, $options: 'i' } },
-                        { 'user.email': { $regex: search, $options: 'i' } },
-                        { 'room.name': { $regex: search, $options: 'i' } },
-                        { '_id': mongoose.Types.ObjectId.isValid(search) ? new mongoose.Types.ObjectId(search) : null }
-                    ]
-                } : {}
-            },
-
-            // Sorting
-            { $sort: { [orderBy]: sortBy === "desc" ? -1 : 1 } },
-
-            // Pagination
-            { $skip: (page - 1) * limit },
-            { $limit: parseInt(limit) }
-        ];
-
-        const reviews = await Review.aggregate(aggregatePipeline);
-        const total = await Review.countDocuments(aggregatePipeline);
+        if (search) {
+            conditions.$or = [
+                { 'user.username': { $regex: search, $options: 'i' } },
+                { 'user.email': { $regex: search, $options: 'i' } },
+                { 'room.name': { $regex: search, $options: 'i' } },
+                { '_id': mongoose.Types.ObjectId.isValid(search) ? new mongoose.Types.ObjectId(search) : null }
+            ];
+        }
+        const reviews = await Review.find(conditions)
+            .sort({ [orderBy]: sortBy })
+            .limit(limit * 1)
+            .skip((page - 1) * limit);
+        const total = await Review.countDocuments(conditions);
         return res.status(200).json({ message: 'Reviews fetched successfully', data: reviews, limit, page, total });
     } catch (error) {
+        console.log("🚀 ~ getAllReviews ~ error:", error)
         return res.status(500).json({ message: 'Error fetching reviews', data: error });
     }
 };
@@ -83,8 +58,7 @@ export const getAllReviews = async (req, res) => {
 export const getReviewByRoomId = async (req, res) => {
     try {
         const { page = 1, limit = 10, roomId } = req.query;
-        const reviews = await Review.find({ room: roomId })
-            .populate('user', 'username email')
+        const reviews = await Review.find({ 'room._id': roomId })
             .sort({ createdAt: -1 })
             .limit(limit * 1)
             .skip((page - 1) * limit);
@@ -101,10 +75,10 @@ export const deleteReviewById = async (req, res) => {
         const review = await Review.findByIdAndDelete(req.params.id);
 
         // update average rating of room
-        const reviews = await Review.find({ room: review.room });
+        const reviews = await Review.find({ 'room._id': review.room._id });
         const totalRating = reviews.length > 0 ? reviews.reduce((acc, review) => acc + review.rating, 0) : 0
         const averageRating = totalRating / (reviews.length || 1);
-        await Room.findByIdAndUpdate(review.room, { rating: averageRating });
+        await Room.findByIdAndUpdate(review.room._id, { rating: averageRating });
         return res.status(200).json({ message: 'Review deleted successfully' });
     } catch (error) {
         console.log("🚀 ~ deleteReviewById ~ error:", error)

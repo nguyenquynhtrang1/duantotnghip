@@ -4,14 +4,18 @@ const Schema = mongoose.Schema;
 
 const reviewSchema = new Schema({
     user: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+        type: {
+            _id: { type: String, required: true },
+            username: { type: String, required: true },
+            email: { type: String, required: true },
+            phone: { type: String, required: true },
+        }, required: true
     },
     room: {
-        type: Schema.Types.ObjectId,
-        ref: 'Room',
-        required: true
+        type: {
+            _id: { type: String, required: true },
+            name: { type: String, required: true },
+        }, required: true
     },
     rating: {
         type: Number,

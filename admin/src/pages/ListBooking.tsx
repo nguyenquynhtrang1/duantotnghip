@@ -186,7 +186,7 @@ export default function ListBooking() {
             <Button
               type="primary"
               onClick={() => {
-                setSelectedBooking(undefined);
+                setSelectedBooking({} as Booking);
                 setOpenModal(true);
               }}
             >

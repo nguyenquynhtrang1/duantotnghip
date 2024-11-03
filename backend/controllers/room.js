@@ -56,7 +56,7 @@ const getRooms = async (req, res) => {
             { $limit: parseInt(limit) }
         ]);
 
-        const total = await Room.countDocuments(matchConditions);
+        const total = rooms.length;
         res.status(200).json({ data: rooms, total, message: "Rooms retrieved successfully" });
     } catch (error) {
         console.error(error); // log lỗi
