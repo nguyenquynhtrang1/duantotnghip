@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Review from '../models/Review.js';
 import Room from '../models/Room.js';
 
@@ -57,6 +58,7 @@ export const getAllReviews = async (req, res) => {
                         { 'user.username': { $regex: search, $options: 'i' } },
                         { 'user.email': { $regex: search, $options: 'i' } },
                         { 'room.name': { $regex: search, $options: 'i' } },
+                        { '_id': mongoose.Types.ObjectId.isValid(search) ? new mongoose.Types.ObjectId(search) : null }
                     ]
                 } : {}
             },

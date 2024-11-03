@@ -9,6 +9,7 @@ import {
   InputNumber,
   message,
   Modal,
+  Popconfirm,
   Rate,
   Row,
   Select,
@@ -78,6 +79,11 @@ export default function ListRoom() {
   };
 
   const columns: TableProps<Room>["columns"] = [
+    {
+      title: "ID",
+      dataIndex: "_id",
+      key: "_id",
+    },
     {
       title: "Name",
       dataIndex: "name",
@@ -152,9 +158,16 @@ export default function ListRoom() {
           >
             Edit
           </Button>
-          <Button danger loading={isPending} onClick={() => mutate(record._id)}>
-            Delete
-          </Button>
+          <Popconfirm
+            title="Are you sure?"
+            onConfirm={() => {
+              mutate(record._id);
+            }}
+          >
+            <Button danger loading={isPending}>
+              Delete
+            </Button>
+          </Popconfirm>
         </Space>
       ),
     },
@@ -217,6 +230,32 @@ type RoomModalProps = {
   setOpen: (value: boolean) => void;
   room?: Room;
 };
+
+/**
+ * Offered Amenities gồm: 
++ Wifi
++ Hair dryer
++ Swimming pool 
++ Mineral water
++ Towels
++ Personal hygiene kit
++ Air-conditioner 
++ Fridge
++ TV
+ */
+
+const OFFERED_AMENITIES = [
+  { label: "Free Wi-Fi", value: "wifi" },
+  { label: "Hair dryer", value: "hairDryer" },
+  { label: "Swimming pool", value: "swimmingPool" },
+  { label: "Mineral water", value: "mineralWater" },
+  { label: "Towels", value: "towels" },
+  { label: "Personal hygiene kit", value: "personalHygieneKit" },
+  { label: "Air-conditioner", value: "airConditioner" },
+  { label: "Fridge", value: "fridge" },
+  { label: "TV", value: "tv" },
+];
+
 const RoomModal = ({ open, setOpen, room }: RoomModalProps) => {
   const queryClient = useQueryClient();
   const [form] = Form.useForm<RoomForm>();
@@ -227,8 +266,12 @@ const RoomModal = ({ open, setOpen, room }: RoomModalProps) => {
     setPhotos(room?.photos || []);
     if (room) {
       form.setFieldsValue({
-        ...room,
+        name: room.name,
         roomType: room.roomType._id,
+        price: room.price,
+        discount: room.discount,
+        offeredAmenities: room.offeredAmenities,
+        description: room.description,
       });
     } else {
       form.resetFields();
@@ -324,6 +367,13 @@ const RoomModal = ({ open, setOpen, room }: RoomModalProps) => {
             style={{ width: "100%" }}
             min={0}
             max={100}
+          />
+        </Form.Item>
+        <Form.Item name="offeredAmenities" label="Offered Amenities">
+          <Select
+            mode="multiple"
+            placeholder="Select offered amenities"
+            options={OFFERED_AMENITIES}
           />
         </Form.Item>
         <Form.Item name="photos" label="Photos">

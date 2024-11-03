@@ -5,6 +5,7 @@ import {
   Input,
   message,
   Modal,
+  Popconfirm,
   Radio,
   Row,
   Space,
@@ -78,6 +79,11 @@ export default function ListUser() {
 
   const columns: TableProps<User>["columns"] = [
     {
+      title: "ID",
+      dataIndex: "_id",
+      key: "_id",
+    },
+    {
       title: "Username",
       dataIndex: "username",
       key: "username",
@@ -128,14 +134,20 @@ export default function ListUser() {
           >
             Edit
           </Button>
-          <Button
-            danger
-            disabled={profile?.data._id === record._id}
-            loading={isPending}
-            onClick={() => mutate(record._id)}
+          <Popconfirm
+            title="Are you sure?"
+            onConfirm={() => {
+              mutate(record._id);
+            }}
           >
-            Delete
-          </Button>
+            <Button
+              danger
+              disabled={profile?.data._id === record._id}
+              loading={isPending}
+            >
+              Delete
+            </Button>
+          </Popconfirm>
         </Space>
       ),
     },
@@ -204,7 +216,12 @@ const UserModal = ({ open, setOpen, user }: UserModalProps) => {
 
   useEffect(() => {
     if (user) {
-      form.setFieldsValue(user);
+      form.setFieldsValue({
+        username: user.username,
+        email: user.email,
+        phone: user.phone,
+        isAdmin: user.isAdmin,
+      });
     } else {
       form.resetFields();
     }

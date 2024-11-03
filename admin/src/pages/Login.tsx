@@ -91,7 +91,7 @@ export default function Login() {
       <Col span={14}>
         <div style={{ position: "relative", height: "100%", display: "block" }}>
           <img
-            src="https://images.unsplash.com/photo-1534239697798-120952b76f2b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1280&q=80"
+            src="https://res.cloudinary.com/dcimfzg6k/image/upload/v1730613617/banner_jgn7st.jpg"
             alt="login"
             style={{
               width: "100%",

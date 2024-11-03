@@ -1,15 +1,16 @@
+import mongoose from 'mongoose';
 import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 
 const createUser = async (req, res) => {
-    const { username, email, password, isAdmin } = req.body;
+    const { username, email, phone, password, isAdmin } = req.body;
     try {
         const existing = await User.findOne({ email })
         if (existing) {
             return res.status(400).json({ message: "User already exists" });
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const user = await User.create({ username, email, password: hashedPassword, isAdmin });
+        const user = await User.create({ username, email, password: hashedPassword, isAdmin, phone });
         user.password = undefined;
         res.status(201).json({ data: user, message: "User created successfully" });
 
@@ -32,7 +33,8 @@ const getUsers = async (req, res) => {
         if (search) {
             conditions.$or = [
                 { username: { $regex: search, $options: "i" } },
-                { email: { $regex: search, $options: "i" } }
+                { email: { $regex: search, $options: "i" } },
+                { '_id': mongoose.Types.ObjectId.isValid(search) ? new mongoose.Types.ObjectId(search) : null }
             ];
         }
         const users = await User.find(conditions)

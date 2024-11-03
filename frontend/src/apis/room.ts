@@ -21,3 +21,15 @@ export const getRoom = async (id: string) => {
     throw new Error("Failed to get room.");
   }
 };
+
+export const getTotalByRoomType = async () => {
+  try {
+    const response = await api.get<
+      SuccessResponse<{ _id: string; total: number; name: string }[]>
+    >("/rooms/totalByRoomType");
+    return response.data;
+  } catch (error) {
+    console.error("Get total by room type API error:", error);
+    throw new Error("Failed to get total by room type.");
+  }
+};

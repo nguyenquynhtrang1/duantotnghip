@@ -51,12 +51,14 @@ const Table: FC<Props> = ({ bookingDetails, onAction }) => {
               </td>
               <td className="px-6 py-4">{booking.status}</td>
               <td className="px-6 py-4">
-                <button
-                  onClick={() => onAction && onAction(booking)}
-                  className="font-medium text-blue-600 hover:underline"
-                >
-                  {booking.status === "Pending" ? "Pay" : "Rate"}
-                </button>
+                {booking.status !== "Cancelled" && (
+                  <button
+                    onClick={() => onAction && onAction(booking)}
+                    className="font-medium text-blue-600 hover:underline"
+                  >
+                    {booking.status === "Pending" ? "Pay" : "Rate"}
+                  </button>
+                )}
               </td>
             </tr>
           ))}

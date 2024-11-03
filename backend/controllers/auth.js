@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
 const register = async (req, res) => {
-    const { username, email, password } = req.body;
+    const { username, email, password, phone } = req.body;
 
     try {
         const existing = await User.findOne({ email });
@@ -12,8 +12,8 @@ const register = async (req, res) => {
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = await User.create({ username, email, password: hashedPassword });
-        const token = jwt.sign({ _id: user._id, email: user.email, username: user.username, isAdmin: user.isAdmin }, process.env.JWT_SECRET_KEY, { expiresIn: "1d" });
-        const refreshToken = jwt.sign({ _id: user._id, email: user.email, username: user.username, isAdmin: user.isAdmin }, process.env.JWT_SECRET_KEY, { expiresIn: "365d" });
+        const token = jwt.sign({ _id: user._id, email: user.email, username: user.username, isAdmin: user.isAdmin, phone: user.phone }, process.env.JWT_SECRET_KEY, { expiresIn: "30d" });
+        const refreshToken = jwt.sign({ _id: user._id, email: user.email, username: user.username, isAdmin: user.isAdmin, phone: user.phone }, process.env.JWT_SECRET_KEY, { expiresIn: "365d" });
         res.status(201).json({ data: { user, token, refreshToken }, message: "User created successfully" });
 
     } catch (error) {
@@ -34,8 +34,8 @@ const login = async (req, res) => {
         if (!isPasswordCorrect) {
             return res.status(400).json({ message: "Invalid credentials" });
         }
-        const token = jwt.sign({ _id: existing._id, email: existing.email, username: existing.username, isAdmin: existing.isAdmin }, process.env.JWT_SECRET_KEY, { expiresIn: "1d" });
-        const refreshToken = jwt.sign({ _id: existing._id, email: existing.email, username: existing.username, isAdmin: existing.isAdmin }, process.env.JWT_SECRET_KEY, { expiresIn: "365d" });
+        const token = jwt.sign({ _id: existing._id, email: existing.email, username: existing.username, isAdmin: existing.isAdmin, phone: existing.phone }, process.env.JWT_SECRET_KEY, { expiresIn: "30d" });
+        const refreshToken = jwt.sign({ _id: existing._id, email: existing.email, username: existing.username, isAdmin: existing.isAdmin, phone: existing.phone }, process.env.JWT_SECRET_KEY, { expiresIn: "365d" });
 
         res.status(200).json({ data: { user: existing, token, refreshToken }, message: "User logged in successfully" });
 
@@ -54,7 +54,7 @@ const refreshToken = async (req, res) => {
 
     try {
         const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET_KEY);
-        const token = jwt.sign({ _id: decoded._id, email: decoded.email, username: decoded.username, isAdmin: decoded.isAdmin }, process.env.JWT_SECRET_KEY, { expiresIn: "1h" });
+        const token = jwt.sign({ _id: decoded._id, email: decoded.email, username: decoded.username, isAdmin: decoded.isAdmin, phone: decoded.phone }, process.env.JWT_SECRET_KEY, { expiresIn: "1h" });
         res.status(200).json({ data: { token }, message: "Token refreshed successfully" });
     } catch (err) {
         return res.status(401).send('Invalid Token');

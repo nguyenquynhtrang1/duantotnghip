@@ -3,6 +3,7 @@ import {
   Col,
   Input,
   message,
+  Popconfirm,
   Rate,
   Row,
   Space,
@@ -63,6 +64,11 @@ export default function ListReviews() {
 
   const columns: TableProps<Review>["columns"] = [
     {
+      title: "ID",
+      dataIndex: "_id",
+      key: "_id",
+    },
+    {
       title: "User",
       dataIndex: "user",
       key: "user",
@@ -86,29 +92,20 @@ export default function ListReviews() {
       key: "comment",
     },
     {
-      title: "CreatedAt",
-      key: "createdAt",
-      dataIndex: "createdAt",
-      render: (createdAt) => new Date(createdAt).toLocaleString(),
-      sorter: true,
-      defaultSortOrder: "descend",
-    },
-    {
-      title: "UpdatedAt",
-      key: "updatedAt",
-      dataIndex: "updatedAt",
-      render: (updatedAt) => new Date(updatedAt).toLocaleString(),
-      sorter: true,
-      defaultSortOrder: "descend",
-    },
-    {
       title: "Action",
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Button danger loading={isPending} onClick={() => mutate(record._id)}>
-            Delete
-          </Button>
+          <Popconfirm
+            title="Are you sure?"
+            onConfirm={() => {
+              mutate(record._id);
+            }}
+          >
+            <Button danger loading={isPending}>
+              Delete
+            </Button>
+          </Popconfirm>
         </Space>
       ),
     },

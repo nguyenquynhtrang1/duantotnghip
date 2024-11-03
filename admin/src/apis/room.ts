@@ -12,6 +12,16 @@ export const getRooms = async (params: GetListParamsRoom) => {
   }
 };
 
+export const getAllRooms = async () => {
+  try {
+    const response = await api.get<GetListResponse<Room>>("/rooms/all");
+    return response.data;
+  } catch (error) {
+    console.error("Get all rooms API error:", error);
+    throw new Error("Failed to get all rooms.");
+  }
+};
+
 export const getRoom = async (id: string) => {
   try {
     const response = await api.get<Room>(`/rooms/${id}`);

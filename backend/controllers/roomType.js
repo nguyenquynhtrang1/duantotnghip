@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import RoomType from '../models/RoomType.js'; // Adjust the path as necessary
 
 // Create a new room type
@@ -26,7 +27,8 @@ const getAllRoomTypes = async (req, res) => {
     if (search) {
         conditions.$or = [
             { name: { $regex: search, $options: 'i' } },
-            { description: { $regex: search, $options: 'i' } }
+            { description: { $regex: search, $options: 'i' } },
+            { '_id': mongoose.Types.ObjectId.isValid(search) ? new mongoose.Types.ObjectId(search) : null }
         ];
     }
     try {

@@ -3,6 +3,7 @@ import "dotenv/config";
 import mongoose from "mongoose";
 import cors from "cors";
 import { v2 as cloudinary } from "cloudinary";
+import cron from "node-cron";
 
 import authRoutes from "./routers/auth.js";
 import userRoutes from "./routers/user.js";
@@ -11,6 +12,7 @@ import roomTypeRoutes from "./routers/roomType.js";
 import bookingRoutes from "./routers/booking.js";
 import uploadRoutes from "./routers/upload.js";
 import reviewRoutes from "./routers/review.js";
+import { scheduleUpdateBooking } from "./controllers/booking.js";
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -28,6 +30,11 @@ app.use(
         origin: "*",
     })
 );
+
+cron.schedule('*/15 * * * *', async () => {
+    console.log('Running a task every 15 minutes');
+    await scheduleUpdateBooking();
+})
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);

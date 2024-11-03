@@ -45,12 +45,36 @@ function getItem(
 }
 
 const items: MenuItem[] = [
-  getItem("Dashboard", "/", <DashboardOutlined />),
-  getItem("Bookings", "/bookings", <DatabaseOutlined />),
-  getItem("Rooms", "/rooms", <InsertRowBelowOutlined />),
-  getItem("Reviews", "/reviews", <FileTextOutlined />),
-  getItem("Room Types", "/roomtypes", <ProfileOutlined />),
-  getItem("Users", "/users", <UserOutlined />),
+  getItem(
+    <Typography.Text strong>Dashboard</Typography.Text>,
+    "/",
+    <DashboardOutlined />
+  ),
+  getItem(
+    <Typography.Text strong>Bookings</Typography.Text>,
+    "/bookings",
+    <DatabaseOutlined />
+  ),
+  getItem(
+    <Typography.Text strong>Rooms</Typography.Text>,
+    "/rooms",
+    <InsertRowBelowOutlined />
+  ),
+  getItem(
+    <Typography.Text strong>Reviews</Typography.Text>,
+    "/reviews",
+    <FileTextOutlined />
+  ),
+  getItem(
+    <Typography.Text strong>Room Types</Typography.Text>,
+    "/roomtypes",
+    <ProfileOutlined />
+  ),
+  getItem(
+    <Typography.Text strong>Users</Typography.Text>,
+    "/users",
+    <UserOutlined />
+  ),
 ];
 
 const CustomLayout = ({ children }: { children: React.ReactNode }) => {
@@ -102,7 +126,7 @@ const CustomLayout = ({ children }: { children: React.ReactNode }) => {
             <Typography.Text
               strong
               italic
-              style={{ fontSize: 20, color: "#3d8000f2" }}
+              style={{ fontSize: 26, color: "#3d8000f2" }}
             >
               Kayla Homestay
             </Typography.Text>

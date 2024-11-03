@@ -1,7 +1,3 @@
-import hero1 from "../../assets/hero-1.jpeg";
-import hero2 from "../../assets/hero-2.jpeg";
-import hero3 from "../../assets/hero-3.jpeg";
-
 const Gallery = () => {
   return (
     <div className="mx-auto container py-14 h-full">
@@ -11,7 +7,7 @@ const Gallery = () => {
             <img
               alt="gallery"
               className="img"
-              src={hero1}
+              src="https://res.cloudinary.com/dcimfzg6k/image/upload/v1730613583/hero-4_mtvbd8.jpg"
               width={200}
               height={200}
             />
@@ -20,7 +16,7 @@ const Gallery = () => {
             <img
               alt="gallery"
               className="img"
-              src={hero2}
+              src="https://res.cloudinary.com/dcimfzg6k/image/upload/v1730613582/hero-9_hpo3cf.jpg"
               width={200}
               height={200}
             />
@@ -29,7 +25,7 @@ const Gallery = () => {
             <img
               alt="gallery"
               className="img"
-              src={hero3}
+              src="https://res.cloudinary.com/dcimfzg6k/image/upload/v1730613582/hero-7_lzcxlz.jpg"
               width={200}
               height={200}
             />
@@ -40,7 +36,7 @@ const Gallery = () => {
             <img
               alt="gallery"
               className="img"
-              src={hero1}
+              src="https://res.cloudinary.com/dcimfzg6k/image/upload/v1730613582/hero-8_ursh69.jpg"
               width={200}
               height={200}
             />
@@ -49,7 +45,7 @@ const Gallery = () => {
             <img
               alt="gallery"
               className="img"
-              src={hero2}
+              src="https://res.cloudinary.com/dcimfzg6k/image/upload/v1730613582/hero-3_ymzxpq.jpg"
               width={200}
               height={200}
             />
@@ -58,7 +54,7 @@ const Gallery = () => {
             <img
               alt="gallery"
               className="img"
-              src={hero3}
+              src="https://res.cloudinary.com/dcimfzg6k/image/upload/v1730613582/hero-6_htazpu.jpg"
               width={200}
               height={200}
             />

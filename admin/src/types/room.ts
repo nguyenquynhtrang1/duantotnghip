@@ -13,6 +13,7 @@ export interface Room {
   numReviews: number;
   isFeatured: boolean;
   invalidDates: Date[];
+  offeredAmenities: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -27,6 +28,7 @@ export interface RoomForm {
   numReviews?: number;
   description?: string;
   isFeatured?: boolean;
+  offeredAmenities?: string[];
 }
 
 export type GetListParamsRoom = GetListParams<{

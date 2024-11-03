@@ -7,8 +7,10 @@ const PageSearch = () => {
     <Search
       searchQueryDefault=""
       roomTypeFilterDefault=""
-      onFilterClick={(search, roomType) => {
-        navigate("/rooms", { state: { search, roomType } });
+      checkinDateDefault={null}
+      checkoutDateDefault={null}
+      onFilterClick={({ search, roomType, checkin, checkout }) => {
+        navigate("/rooms", { state: { search, roomType, checkin, checkout } });
       }}
     />
   );

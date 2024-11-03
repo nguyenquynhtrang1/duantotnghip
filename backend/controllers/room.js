@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Room from "../models/Room.js";
 
 // Get all rooms
@@ -5,36 +6,68 @@ const getRooms = async (req, res) => {
     const {
         search,
         roomType,
-        isFeatured,
         orderBy = "createdAt",
         sortBy = "desc",
         limit = 10,
         page = 1
     } = req.query;
-    const conditions = {};
+
+    const matchConditions = {};
+
+    // Kiểm tra và thêm điều kiện tìm kiếm
     if (search) {
-        conditions.$or = [
+        matchConditions.$or = [
             { name: { $regex: search, $options: "i" } },
-            { description: { $regex: search, $options: "i" } }
+            { description: { $regex: search, $options: "i" } },
+            { 'roomType.name': { $regex: search, $options: "i" } },
+            { '_id': mongoose.Types.ObjectId.isValid(search) ? new mongoose.Types.ObjectId(search) : null }
         ];
     }
-    if (roomType) {
-        conditions.roomType = roomType;
-    }
 
-    if (isFeatured) {
-        conditions.isFeatured = isFeatured;
+    // Thêm điều kiện roomType
+    if (roomType) {
+        matchConditions["roomType._id"] = new mongoose.Types.ObjectId(roomType);
     }
 
     try {
-        const rooms = await Room.find(conditions)
-            .populate("roomType")
-            .sort({ [orderBy]: sortBy })
-            .limit(limit * 1)
-            .skip((page - 1) * limit);
-        const total = await Room.countDocuments(conditions);
+        const rooms = await Room.aggregate([
+            {
+                $lookup: {
+                    from: "roomtypes",
+                    localField: "roomType",
+                    foreignField: "_id",
+                    as: "roomType"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$roomType",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $match: matchConditions
+            },
+            // Sorting
+            { $sort: { [orderBy]: sortBy === "desc" ? -1 : 1 } },
 
+            // Pagination
+            { $skip: (page - 1) * limit },
+            { $limit: parseInt(limit) }
+        ]);
+
+        const total = await Room.countDocuments(matchConditions);
         res.status(200).json({ data: rooms, total, message: "Rooms retrieved successfully" });
+    } catch (error) {
+        console.error(error); // log lỗi
+        return res.status(500).json({ message: "Something went wrong" });
+    }
+}
+
+const getAllRooms = async (req, res) => {
+    try {
+        const rooms = await Room.find();
+        res.status(200).json({ data: rooms, message: "Rooms retrieved successfully" });
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }
@@ -109,4 +142,32 @@ const getTotal = async (req, res) => {
     }
 }
 
-export { getRooms, getRoom, createRoom, updateRoom, deleteRoom, getTotal };
+const getTotalByRoomType = async (req, res) => {
+    try {
+        const total = await Room.aggregate([
+            {
+                $lookup: {
+                    from: "roomtypes",
+                    localField: "roomType",
+                    foreignField: "_id",
+                    as: "roomType"
+                }
+            },
+            {
+                $unwind: "$roomType"
+            },
+            {
+                $group: {
+                    _id: "$roomType",
+                    total: { $sum: 1 },
+                    name: { $first: "$roomType.name" }
+                }
+            }
+        ]);
+        res.status(200).json({ data: total, message: "Total rooms by room type retrieved successfully" });
+    } catch (error) {
+        return res.status(500).json({ message: "Something went wrong" });
+    }
+}
+
+export { getRooms, getAllRooms, getRoom, createRoom, updateRoom, deleteRoom, getTotal, getTotalByRoomType };

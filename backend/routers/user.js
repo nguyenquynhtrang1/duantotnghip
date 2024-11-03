@@ -8,6 +8,7 @@ const router = express.Router();
 const validateUser = [
     body('username').notEmpty().withMessage('Username is required'),
     body('email').isEmail().notEmpty().withMessage('Email is required'),
+    body('phone').isMobilePhone(),
     body('password').notEmpty().withMessage('Email is required'),
     body('isAdmin').isBoolean().withMessage('isAdmin is required'),
 ]

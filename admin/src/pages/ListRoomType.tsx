@@ -5,6 +5,7 @@ import {
   Input,
   message,
   Modal,
+  Popconfirm,
   Row,
   Space,
   Table,
@@ -75,6 +76,11 @@ export default function ListRoomType() {
 
   const columns: TableProps<RoomType>["columns"] = [
     {
+      title: "ID",
+      dataIndex: "_id",
+      key: "_id",
+    },
+    {
       title: "Name",
       dataIndex: "name",
       key: "name",
@@ -114,9 +120,16 @@ export default function ListRoomType() {
           >
             Edit
           </Button>
-          <Button danger loading={isPending} onClick={() => mutate(record._id)}>
-            Delete
-          </Button>
+          <Popconfirm
+            title="Are you sure?"
+            onConfirm={() => {
+              mutate(record._id);
+            }}
+          >
+            <Button danger loading={isPending}>
+              Delete
+            </Button>
+          </Popconfirm>
         </Space>
       ),
     },
@@ -168,7 +181,7 @@ export default function ListRoomType() {
       <RoomTypeModal
         open={openModal}
         setOpen={(value) => setOpenModal(value)}
-        RoomType={selectedRoomType}
+        roomType={selectedRoomType}
       />
     </>
   );
@@ -177,19 +190,22 @@ export default function ListRoomType() {
 type RoomTypeModalProps = {
   open: boolean;
   setOpen: (value: boolean) => void;
-  RoomType?: RoomType;
+  roomType?: RoomType;
 };
-const RoomTypeModal = ({ open, setOpen, RoomType }: RoomTypeModalProps) => {
+const RoomTypeModal = ({ open, setOpen, roomType }: RoomTypeModalProps) => {
   const queryClient = useQueryClient();
   const [form] = Form.useForm<RoomTypeForm>();
 
   useEffect(() => {
-    if (RoomType) {
-      form.setFieldsValue(RoomType);
+    if (roomType) {
+      form.setFieldsValue({
+        name: roomType.name,
+        description: roomType.description,
+      });
     } else {
       form.resetFields();
     }
-  }, [form, RoomType]);
+  }, [form, roomType]);
 
   const { mutate: create, isPending: isPendingCreate } = useMutation({
     mutationFn: (RoomType: RoomTypeForm) => createRoomType(RoomType),
@@ -225,8 +241,8 @@ const RoomTypeModal = ({ open, setOpen, RoomType }: RoomTypeModalProps) => {
   };
 
   const onFinish = (values: RoomTypeForm) => {
-    if (RoomType?._id) {
-      update({ id: RoomType._id, RoomType: values });
+    if (roomType?._id) {
+      update({ id: roomType._id, RoomType: values });
     } else {
       create(values);
     }
@@ -234,7 +250,7 @@ const RoomTypeModal = ({ open, setOpen, RoomType }: RoomTypeModalProps) => {
 
   return (
     <Modal
-      title={RoomType?._id ? "Edit RoomType" : "Create RoomType"}
+      title={roomType?._id ? "Edit RoomType" : "Create RoomType"}
       open={open}
       onOk={() => form.submit()}
       onCancel={onCancel}

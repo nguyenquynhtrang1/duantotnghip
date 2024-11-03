@@ -7,6 +7,7 @@ import {
   Input,
   message,
   Modal,
+  Popconfirm,
   Row,
   Select,
   Space,
@@ -22,7 +23,7 @@ import {
   getBookings,
   updateBooking,
 } from "../apis/booking";
-import { getRooms } from "../apis/room";
+import { getAllRooms } from "../apis/room";
 import { getUsers } from "../apis/user";
 import {
   Booking,
@@ -84,6 +85,11 @@ export default function ListBooking() {
 
   const columns: TableProps<Booking>["columns"] = [
     {
+      title: "ID",
+      dataIndex: "_id",
+      key: "_id",
+    },
+    {
       title: "User",
       dataIndex: "user",
       key: "user",
@@ -144,22 +150,6 @@ export default function ListBooking() {
       },
     },
     {
-      title: "CreatedAt",
-      key: "createdAt",
-      dataIndex: "createdAt",
-      render: (createdAt) => new Date(createdAt).toLocaleString(),
-      sorter: true,
-      defaultSortOrder: "descend",
-    },
-    {
-      title: "UpdatedAt",
-      key: "updatedAt",
-      dataIndex: "updatedAt",
-      render: (updatedAt) => new Date(updatedAt).toLocaleString(),
-      sorter: true,
-      defaultSortOrder: "descend",
-    },
-    {
       title: "Action",
       key: "action",
       render: (_, record) => (
@@ -172,9 +162,14 @@ export default function ListBooking() {
           >
             Edit
           </Button>
-          <Button danger loading={isPending} onClick={() => mutate(record._id)}>
-            Delete
-          </Button>
+          <Popconfirm
+            title="Are you sure?"
+            onConfirm={() => mutate(record._id)}
+          >
+            <Button danger loading={isPending}>
+              Delete
+            </Button>
+          </Popconfirm>
         </Space>
       ),
     },
@@ -242,8 +237,8 @@ const BookingModal = ({ open, setOpen, booking }: BookingModalProps) => {
   const [form] = Form.useForm<BookingForm>();
 
   const { data: rooms, isLoading: isLoadingRooms } = useQuery({
-    queryKey: ["Rooms"],
-    queryFn: () => getRooms({ page: 1, limit: 0 }),
+    queryKey: ["AllRooms"],
+    queryFn: () => getAllRooms(),
   });
   const selectedRoomId = Form.useWatch("roomId", form);
   const selectedRoom = rooms?.data.find((item) => item._id === selectedRoomId);

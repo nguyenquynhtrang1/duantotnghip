@@ -3,6 +3,7 @@ import Room from '../models/Room.js';
 import User from '../models/User.js';
 import crypto from "crypto";
 import axios from "axios";
+import mongoose from 'mongoose';
 
 // Get all bookings
 const getBookings = async (req, res) => {
@@ -52,7 +53,8 @@ const getBookings = async (req, res) => {
                     { 'user.username': { $regex: search, $options: 'i' } },
                     { 'user.email': { $regex: search, $options: 'i' } },
                     { 'room.name': { $regex: search, $options: 'i' } },
-                    { 'roomType': { $regex: search, $options: 'i' } }
+                    { 'roomType': { $regex: search, $options: 'i' } },
+                    { '_id': mongoose.Types.ObjectId.isValid(search) ? new mongoose.Types.ObjectId(search) : null }
                 ]
             } : {}
         },
@@ -373,14 +375,63 @@ const getTotal = async (req, res) => {
                     status: "$_id",
                     count: 1
                 }
+            },
+            // Thêm các trạng thái mặc định với giá trị 0 nếu không có trong dữ liệu
+            {
+                $addFields: {
+                    defaultStatuses: [
+                        { status: "Confirmed", count: 0 },
+                        { status: "Pending", count: 0 },
+                        { status: "Cancelled", count: 0 }
+                    ]
+                }
+            },
+            {
+                $unwind: "$defaultStatuses"
+            },
+            {
+                $group: {
+                    _id: "$defaultStatuses.status",
+                    count: { $max: { $cond: [{ $eq: ["$status", "$defaultStatuses.status"] }, "$count", 0] } }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    status: "$_id",
+                    count: 1
+                }
+            },
+            // Thêm trường sortOrder để sắp xếp theo thứ tự tùy chỉnh
+            {
+                $addFields: {
+                    sortOrder: {
+                        $switch: {
+                            branches: [
+                                { case: { $eq: ["$status", "Confirmed"] }, then: 0 },
+                                { case: { $eq: ["$status", "Pending"] }, then: 1 },
+                                { case: { $eq: ["$status", "Cancelled"] }, then: 2 }
+                            ],
+                            default: 3
+                        }
+                    }
+                }
+            },
+            // Sắp xếp theo trường sortOrder
+            {
+                $sort: { sortOrder: 1 }
+            },
+            // Loại bỏ trường sortOrder trước khi trả kết quả
+            {
+                $project: { sortOrder: 0 }
             }
         ]);
+
         res.status(200).json({ data: totalByStatus, message: "Total bookings retrieved successfully" });
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }
-}
-
+};
 
 
 function getDatesBetween(startDate, endDate) {
@@ -505,6 +556,21 @@ const paymentWebhook = async (req, res) => {
     return res.json({ message: "Payment webhook received" });
 }
 
+const scheduleUpdateBooking = async () => {
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const bookings = await Booking.find({ status: "Pending", createdAt: { $lt: oneHourAgo } });
+    for (const booking of bookings) {
+        booking.status = "Cancelled";
+        await booking.save();
+        const listDatesBooking = getDatesBetween(booking.checkIn, booking.checkOut);
+        await Room.findByIdAndUpdate(booking.room, {
+            $pull: {
+                invalidDates: { $in: listDatesBooking }
+            }
+        })
+    }
+}
+
 export {
     getBookings,
     getBooking,
@@ -518,5 +584,6 @@ export {
     getRevenueByRoomType,
     getTotal,
     createUrlPayment,
-    paymentWebhook
+    paymentWebhook,
+    scheduleUpdateBooking
 };

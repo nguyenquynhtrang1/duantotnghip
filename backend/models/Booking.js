@@ -7,7 +7,7 @@ const BookingSchema = new mongoose.Schema({
     checkIn: { type: Date, required: true },
     checkOut: { type: Date, required: true },
     totalCost: { type: Number, required: true },
-    status: { type: String, enum: ["Pending", "Confirmed", "Cancelled", "Completed"], default: "Pending" },
+    status: { type: String, enum: ["Pending", "Confirmed", "Cancelled"], default: "Pending" },
 }, { timestamps: true });
 BookingSchema.index({ roomType: 1, createdAt: 1 }, { unique: true });
 
