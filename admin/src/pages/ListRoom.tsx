@@ -94,7 +94,7 @@ export default function ListRoom() {
       title: "Room type",
       dataIndex: "roomType",
       key: "roomType",
-      render: (roomType) => roomType.name,
+      render: (roomType) => roomType?.name,
       filters: roomTypes?.data.map((item) => ({
         text: item.name,
         value: item._id,
@@ -267,7 +267,7 @@ const RoomModal = ({ open, setOpen, room }: RoomModalProps) => {
     if (room) {
       form.setFieldsValue({
         name: room.name,
-        roomType: room.roomType._id,
+        roomType: room.roomType?._id,
         price: room.price,
         discount: room.discount,
         offeredAmenities: room.offeredAmenities,

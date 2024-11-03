@@ -72,13 +72,13 @@ export default function ListReviews() {
       title: "User",
       dataIndex: "user",
       key: "user",
-      render: (user) => <a>{user.email}</a>,
+      render: (user) => <a>{user?.email}</a>,
     },
     {
       title: "Room",
       dataIndex: "room",
       key: "room",
-      render: (room) => <a>{room.name}</a>,
+      render: (room) => <a>{room?.name}</a>,
     },
     {
       title: "Rating",
