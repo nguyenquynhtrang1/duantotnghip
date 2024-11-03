@@ -148,7 +148,9 @@ const RoomDetails = () => {
               </div>
               <div className="mb-11">
                 <h2 className="font-bold text-3xl mb-2">Description</h2>
-                <p>{data.data.description}</p>
+                <p className="whitespace-pre-wrap break-words">
+                  {data.data.description}
+                </p>
               </div>
               <div className="mb-11">
                 <h2 className="font-bold text-3xl mb-2">Offered Amenities</h2>

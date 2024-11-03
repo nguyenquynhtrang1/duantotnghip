@@ -62,9 +62,10 @@ export const getReviewByRoomId = async (req, res) => {
             .sort({ createdAt: -1 })
             .limit(limit * 1)
             .skip((page - 1) * limit);
-        const total = await Review.countDocuments({ room: roomId });
+        const total = await Review.countDocuments({ 'room._id': roomId });
         return res.status(200).json({ message: 'Reviews fetched successfully', data: reviews, total, limit, page });
     } catch (error) {
+        console.log("🚀 ~ getReviewByRoomId ~ error:", error)
         return res.status(500).json({ message: 'Error fetching reviews', data: error });
     }
 };
