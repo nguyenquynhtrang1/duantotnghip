@@ -155,6 +155,7 @@ export default function ListBooking() {
       render: (_, record) => (
         <Space size="middle">
           <Button
+            disabled={record.status !== "Pending"}
             onClick={() => {
               setSelectedBooking(record);
               setOpenModal(true);

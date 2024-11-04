@@ -8,6 +8,8 @@ const getRooms = async (req, res) => {
         roomType,
         orderBy = "createdAt",
         sortBy = "desc",
+        checkin,
+        checkout,
         limit = 10,
         page = 1
     } = req.query;
@@ -27,6 +29,17 @@ const getRooms = async (req, res) => {
     // Thêm điều kiện roomType
     if (roomType) {
         matchConditions["roomType._id"] = new mongoose.Types.ObjectId(roomType);
+    }
+
+    if (checkin && checkout) {
+        matchConditions.invalidDates = {
+            $not: {
+                $elemMatch: {
+                    $gte: new Date(checkin),
+                    $lt: new Date(checkout)
+                }
+            }
+        }
     }
 
     try {
