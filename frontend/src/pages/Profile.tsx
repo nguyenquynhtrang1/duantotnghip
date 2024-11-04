@@ -205,7 +205,7 @@ const Profile = () => {
       </div>
 
       <RatingModal
-        isOpen={true}
+        isOpen={isRatingVisible}
         ratingValue={ratingValue}
         setRatingValue={setRatingValue}
         ratingText={ratingText}
