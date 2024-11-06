@@ -34,9 +34,9 @@ const Rooms = () => {
           setParams({ ...params, search, roomType, checkin, checkout });
         }}
       />
-      {!isLoading && (
+      {!isLoading && data?.data && data.data.length > 0 && (
         <div className="flex mt-20 gap-5 flex-wrap">
-          {data?.data.map((room) => (
+          {data.data.map((room) => (
             <RoomCard key={room._id} room={room} />
           ))}
         </div>
