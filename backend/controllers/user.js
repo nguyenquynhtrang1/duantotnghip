@@ -30,11 +30,11 @@ const getUsers = async (req, res) => {
             sortBy = "desc"
         } = req.query
         const conditions = {};
-        if (search) {
+        if (search?.trim()) {
             conditions.$or = [
-                { username: { $regex: search, $options: "i" } },
-                { email: { $regex: search, $options: "i" } },
-                { '_id': mongoose.Types.ObjectId.isValid(search) ? new mongoose.Types.ObjectId(search) : null }
+                { username: { $regex: search.trim(), $options: "i" } },
+                { email: { $regex: search.trim(), $options: "i" } },
+                { '_id': mongoose.Types.ObjectId.isValid(search.trim()) ? new mongoose.Types.ObjectId(search.trim()) : null }
             ];
         }
         const users = await User.find(conditions)

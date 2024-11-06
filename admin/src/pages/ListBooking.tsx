@@ -198,6 +198,7 @@ export default function ListBooking() {
               onSearch={(v) => {
                 setParams({
                   ...params,
+                  page: 1,
                   search: v,
                 });
               }}
@@ -248,7 +249,6 @@ const BookingModal = ({ open, setOpen, booking }: BookingModalProps) => {
     queryKey: ["Users"],
     queryFn: () => getUsers({ page: 1, limit: 0 }),
   });
-  console.log(booking);
   useEffect(() => {
     if (booking) {
       form.setFieldsValue({
@@ -293,6 +293,7 @@ const BookingModal = ({ open, setOpen, booking }: BookingModalProps) => {
 
   const onCancel = () => {
     setOpen(false);
+    form.resetFields();
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

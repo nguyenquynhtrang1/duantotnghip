@@ -123,6 +123,7 @@ export default function ListReviews() {
             onSearch={(v) => {
               setParams({
                 ...params,
+                page: 1,
                 search: v,
               });
             }}

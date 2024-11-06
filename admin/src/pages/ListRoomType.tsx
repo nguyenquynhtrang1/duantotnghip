@@ -157,6 +157,7 @@ export default function ListRoomType() {
               onSearch={(v) => {
                 setParams({
                   ...params,
+                  page: 1,
                   search: v,
                 });
               }}

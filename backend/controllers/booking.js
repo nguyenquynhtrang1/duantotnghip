@@ -27,13 +27,14 @@ const getBookings = async (req, res) => {
         matchConditions.roomType = roomType;
     }
 
-    if (search) {
+    if (search?.trim()) {
+        const s = search.trim();
         matchConditions.$or = [
-            { 'user.username': { $regex: search, $options: 'i' } },
-            { 'user.email': { $regex: search, $options: 'i' } },
-            { 'room.name': { $regex: search, $options: 'i' } },
-            { 'roomType': { $regex: search, $options: 'i' } },
-            { '_id': mongoose.Types.ObjectId.isValid(search) ? new mongoose.Types.ObjectId(search) : null }
+            { 'user.username': { $regex: s, $options: 'i' } },
+            { 'user.email': { $regex: s, $options: 'i' } },
+            { 'room.name': { $regex: s, $options: 'i' } },
+            { 'roomType': { $regex: s, $options: 'i' } },
+            { '_id': mongoose.Types.ObjectId.isValid(s) ? new mongoose.Types.ObjectId(s) : null }
         ]
     }
     try {
@@ -253,12 +254,7 @@ const deleteBooking = async (req, res) => {
 // Get all bookings for a specific user
 const getUserBookings = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id);
-        if (!user) {
-            return res.status(404).json({ message: "User does not exist" });
-        }
-        const bookings = await Booking.find({ 'user._id': req.user._id })
-            .sort({ createdAt: -1 });
+        const bookings = await Booking.find({ 'user._id': req.user._id }).sort({ createdAt: -1 });
         return res.status(200).json({ data: bookings, message: "Bookings retrieved successfully" });
     }
     catch (error) {

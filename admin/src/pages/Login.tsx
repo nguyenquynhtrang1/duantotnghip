@@ -17,7 +17,7 @@ export default function Login() {
   });
 
   useEffect(() => {
-    if (data) {
+    if (data && data.data.isAdmin) {
       navigate("/");
     }
   }, [data, navigate]);
@@ -27,9 +27,13 @@ export default function Login() {
       return login(credentials);
     },
     onSuccess: (res: LoginResponse) => {
-      localStorage.setItem("access_token", res.data.token);
-      localStorage.setItem("refresh_token", res.data.refreshToken);
-      navigate("/");
+      if (res.data.user.isAdmin) {
+        localStorage.setItem("access_token", res.data.token);
+        localStorage.setItem("refresh_token", res.data.refreshToken);
+        navigate("/");
+      } else {
+        message.error("You are not authorized to access this page");
+      }
     },
     onError: (error: Error) => {
       message.error(error.message);

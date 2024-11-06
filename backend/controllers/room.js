@@ -5,7 +5,7 @@ import Room from "../models/Room.js";
 const getRooms = async (req, res) => {
     const {
         search,
-        roomType,
+        roomTypes,
         orderBy = "createdAt",
         sortBy = "desc",
         checkin,
@@ -17,18 +17,24 @@ const getRooms = async (req, res) => {
     const matchConditions = {};
 
     // Kiểm tra và thêm điều kiện tìm kiếm
-    if (search) {
+    if (search?.trim()) {
+        const s = search.trim();
         matchConditions.$or = [
-            { name: { $regex: search, $options: "i" } },
-            { description: { $regex: search, $options: "i" } },
-            { 'roomType.name': { $regex: search, $options: "i" } },
-            { '_id': mongoose.Types.ObjectId.isValid(search) ? new mongoose.Types.ObjectId(search) : null }
+            { name: { $regex: s, $options: "i" } },
+            { description: { $regex: s, $options: "i" } },
+            { 'roomType.name': { $regex: s, $options: "i" } },
+            { '_id': mongoose.Types.ObjectId.isValid(s) ? new mongoose.Types.ObjectId(s) : null }
         ];
     }
 
     // Thêm điều kiện roomType
-    if (roomType) {
-        matchConditions["roomType._id"] = new mongoose.Types.ObjectId(roomType);
+    if (roomTypes && roomTypes.length > 0) {
+        const ids = roomTypes.filter(id => mongoose.Types.ObjectId.isValid(id));
+        if (ids.length > 0) {
+            matchConditions["roomType._id"] = {
+                $in: ids.map(id => new mongoose.Types.ObjectId(id))
+            }
+        }
     }
 
     if (checkin && checkout) {
@@ -43,7 +49,7 @@ const getRooms = async (req, res) => {
     }
 
     try {
-        const rooms = await Room.aggregate([
+        const result = await Room.aggregate([
             {
                 $lookup: {
                     from: "roomtypes",
@@ -61,15 +67,38 @@ const getRooms = async (req, res) => {
             {
                 $match: matchConditions
             },
-            // Sorting
-            { $sort: { [orderBy]: sortBy === "desc" ? -1 : 1 } },
-
-            // Pagination
-            { $skip: (page - 1) * limit },
-            { $limit: parseInt(limit) }
+            {
+                $facet: {
+                    data: [
+                        { $sort: { [orderBy]: sortBy === "desc" ? -1 : 1 } },
+                        { $skip: (page - 1) * limit },
+                        { $limit: parseInt(limit) },
+                        {
+                            $project: {
+                                name: 1,
+                                description: 1,
+                                photos: 1,
+                                price: 1,
+                                discount: 1,
+                                roomType: 1,
+                                rating: 1,
+                                offeredAmenities: 1,
+                                invalidDates: 1,
+                                createdAt: 1,
+                                updatedAt: 1
+                            }
+                        }
+                    ],
+                    total: [
+                        { $count: "total" }
+                    ]
+                }
+            },
         ]);
 
-        const total = rooms.length;
+        const total = result?.[0]?.total?.[0]?.total || 0;
+        const rooms = result?.[0]?.data || [];
+
         res.status(200).json({ data: rooms, total, message: "Rooms retrieved successfully" });
     } catch (error) {
         console.error(error); // log lỗi

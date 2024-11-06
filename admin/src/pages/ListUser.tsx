@@ -175,6 +175,7 @@ export default function ListUser() {
               onSearch={(v) => {
                 setParams({
                   ...params,
+                  page: 1,
                   search: v,
                 });
               }}

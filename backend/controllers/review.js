@@ -53,26 +53,44 @@ export const getAllReviews = async (req, res) => {
             },
             { $unwind: '$room' },
             {
-                $match: search ? {
+                $match: search?.trim() ? {
                     $or: [
-                        { 'user.username': { $regex: search, $options: 'i' } },
-                        { 'user.email': { $regex: search, $options: 'i' } },
-                        { 'room.name': { $regex: search, $options: 'i' } },
-                        { '_id': mongoose.Types.ObjectId.isValid(search) ? new mongoose.Types.ObjectId(search) : null }
+                        { 'user.username': { $regex: search.trim(), $options: 'i' } },
+                        { 'user.email': { $regex: search.trim(), $options: 'i' } },
+                        { 'room.name': { $regex: search.trim(), $options: 'i' } },
+                        { '_id': mongoose.Types.ObjectId.isValid(search.trim()) ? new mongoose.Types.ObjectId(search.trim()) : null }
                     ]
                 } : {}
             },
+            {
+                $facet: {
+                    data: [
+                        { $sort: { [orderBy]: sortBy === 'desc' ? -1 : 1 } },
+                        { $skip: (page - 1) * limit },
+                        { $limit: parseInt(limit) },
+                        {
+                            $project: {
+                                user: 1,
+                                room: 1,
+                                rating: 1,
+                                comment: 1,
+                                createdAt: 1
+                            }
+                        }
+                    ],
+                    total: [
+                        { $count: 'total' }
+                    ]
 
-            // Sorting
-            { $sort: { [orderBy]: sortBy === "desc" ? -1 : 1 } },
-
-            // Pagination
-            { $skip: (page - 1) * limit },
-            { $limit: parseInt(limit) }
+                }
+            },
         ];
 
-        const reviews = await Review.aggregate(aggregatePipeline);
-        const total = reviews.length;
+        const result = await Review.aggregate(aggregatePipeline);
+
+        const total = result?.[0]?.total?.[0]?.total || 0;
+        const reviews = result?.[0]?.data || [];
+
         return res.status(200).json({ message: 'Reviews fetched successfully', data: reviews, limit, page, total });
     } catch (error) {
         return res.status(500).json({ message: 'Error fetching reviews', data: error });

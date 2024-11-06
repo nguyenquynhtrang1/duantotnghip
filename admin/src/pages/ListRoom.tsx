@@ -74,7 +74,7 @@ export default function ListRoom() {
         : sorter.order === "ascend"
         ? "asc"
         : "desc",
-      roomType: filters.roomType?.[0] as string,
+      roomTypes: filters.roomType as string[],
     });
   };
 
@@ -195,6 +195,7 @@ export default function ListRoom() {
               onSearch={(v) => {
                 setParams({
                   ...params,
+                  page: 1,
                   search: v,
                 });
               }}

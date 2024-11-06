@@ -91,7 +91,7 @@ const CustomLayout = ({ children }: { children: React.ReactNode }) => {
   });
 
   useEffect(() => {
-    if (isError) {
+    if (isError || !data?.data.isAdmin) {
       navigate("/login");
     }
   }, [isError, navigate]);

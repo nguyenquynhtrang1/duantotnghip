@@ -30,8 +30,8 @@ const RoomCard: FC<Props> = (props) => {
           <p>{convertToVND(price)}</p>
         </div>
 
-        <p className="pt-2 text-xs">{roomType.name} Room</p>
-        <p className="pt-3 pb-6">{description?.slice(0, 100)}...</p>
+        <p className="pt-2 text-xs">{roomType?.name} Room</p>
+        <p className="mt-3 mb-6 line-clamp-3 h-[72px]">{description}</p>
 
         <Link
           to={`/rooms/${_id}`}

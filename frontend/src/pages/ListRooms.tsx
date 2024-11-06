@@ -13,12 +13,12 @@ const Rooms = () => {
     page: 1,
     limit: LIMIT,
     search: state?.search || "",
-    roomType: state?.roomType || "",
+    roomTypes: state?.roomType ? [state.roomType] : [],
     checkin: state?.checkin,
     checkout: state?.checkout,
   });
 
-  const { data, isLoading } = useQuery({
+  const { data } = useQuery({
     queryKey: ["ListRooms", JSON.stringify(params)],
     queryFn: () => getRooms(params),
   });
@@ -26,15 +26,21 @@ const Rooms = () => {
   return (
     <div className="container mx-auto pt-10">
       <Search
-        roomTypeFilterDefault={params.roomType}
+        roomTypeFilterDefault={params.roomTypes?.[0]}
         searchQueryDefault={params.search}
         checkinDateDefault={params.checkin}
         checkoutDateDefault={params.checkout}
         onFilterClick={({ search, roomType, checkin, checkout }) => {
-          setParams({ ...params, search, roomType, checkin, checkout });
+          setParams({
+            ...params,
+            search,
+            roomTypes: [roomType],
+            checkin,
+            checkout,
+          });
         }}
       />
-      {!isLoading && data?.data && data.data.length > 0 && (
+      {data?.data && data.data.length > 0 && (
         <div className="flex mt-20 gap-5 flex-wrap">
           {data.data.map((room) => (
             <RoomCard key={room._id} room={room} />

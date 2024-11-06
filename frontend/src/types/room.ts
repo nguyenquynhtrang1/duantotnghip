@@ -32,7 +32,7 @@ export interface RoomForm {
 }
 
 export type GetListParamsRoom = GetListParams<{
-  roomType?: string;
+  roomTypes?: string[];
   isFeatured?: boolean;
   from?: Date;
   to?: Date;

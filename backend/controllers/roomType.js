@@ -24,11 +24,11 @@ const getAllRoomTypes = async (req, res) => {
         search
     } = req.query
     const conditions = {};
-    if (search) {
+    if (search?.trim()) {
         conditions.$or = [
-            { name: { $regex: search, $options: 'i' } },
-            { description: { $regex: search, $options: 'i' } },
-            { '_id': mongoose.Types.ObjectId.isValid(search) ? new mongoose.Types.ObjectId(search) : null }
+            { name: { $regex: search.trim(), $options: 'i' } },
+            { description: { $regex: search.trim(), $options: 'i' } },
+            { '_id': mongoose.Types.ObjectId.isValid(search.trim()) ? new mongoose.Types.ObjectId(search.trim()) : null }
         ];
     }
     try {
