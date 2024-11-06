@@ -58,6 +58,7 @@ export const getAllReviews = async (req, res) => {
                         { 'user.username': { $regex: search.trim(), $options: 'i' } },
                         { 'user.email': { $regex: search.trim(), $options: 'i' } },
                         { 'room.name': { $regex: search.trim(), $options: 'i' } },
+                        { comment: { $regex: search.trim(), $options: 'i' } },
                         { '_id': mongoose.Types.ObjectId.isValid(search.trim()) ? new mongoose.Types.ObjectId(search.trim()) : null }
                     ]
                 } : {}
