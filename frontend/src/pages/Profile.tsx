@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { BsJournalBookmarkFill } from "react-icons/bs";
-import { FaSignOutAlt, FaUserCircle } from "react-icons/fa";
+import { FaEdit, FaSignOutAlt, FaUserCircle } from "react-icons/fa";
 import { GiMoneyStack } from "react-icons/gi";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -17,6 +17,7 @@ import RatingModal from "../components/RatingModal/RatingModal";
 import Table from "../components/Table/Table";
 import { Booking } from "../types/booking";
 import { ReviewForm } from "../types/review";
+import ProfileModal from "../components/ProfileModal/ProfileModal";
 
 const Profile = () => {
   const queryClient = useQueryClient();
@@ -26,6 +27,7 @@ const Profile = () => {
   >("bookings");
   const [roomId, setRoomId] = useState<string | null>(null);
   const [isRatingVisible, setIsRatingVisible] = useState(false);
+  const [isProfileVisible, setIsProfileVisible] = useState(false);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [ratingValue, setRatingValue] = useState<number | null>(0);
   const [ratingText, setRatingText] = useState("");
@@ -64,6 +66,8 @@ const Profile = () => {
   });
 
   const toggleRatingModal = () => setIsRatingVisible((prevState) => !prevState);
+  const toggleProfileModal = () =>
+    setIsProfileVisible((prevState) => !prevState);
 
   const reviewSubmitHandler = async (): Promise<string | undefined> => {
     if (!ratingText.trim().length || !ratingValue) {
@@ -124,18 +128,14 @@ const Profile = () => {
   return (
     <div className="container mx-auto px-2 md:px-4 py10">
       <div className="md:col-span-8 lg:col-span-9">
-        <div className="flex items-center gap-4 ">
-          <h5 className="text-2xl font-bold mr-3">
+        <div className="flex items-center gap-4">
+          <h5 className="text-2xl font-bold">
             Hello, {profile?.data.username}
           </h5>
-          <div
-            className="flex items-center gap-2"
-            role="button"
-            onClick={() => mutate()}
-          >
-            <FaSignOutAlt className="text-2xl cursor-pointer" />
-            <h5 className="text-xl">Logout</h5>
-          </div>
+          <FaEdit
+            className="text-2xl cursor-pointer"
+            onClick={toggleProfileModal}
+          />
         </div>
         <div className="md:hidden w-14 h-14 rounded-l-full overflow-hidden">
           <FaUserCircle className="cursor-pointer" />
@@ -143,6 +143,14 @@ const Profile = () => {
         <p className="text-xs py-2 font-medium">
           Joined In {profile?.data.createdAt.toString().split("T")[0]}
         </p>
+        <div
+          className="flex items-center gap-2 w-max"
+          role="button"
+          onClick={() => mutate()}
+        >
+          <FaSignOutAlt className="text-2xl cursor-pointer" />
+          <h5 className="text-xl">Logout</h5>
+        </div>
         <div className="md:hidden flex items-center my-2">
           <p className="mr-2">Sign out</p>
           <FaSignOutAlt
@@ -214,7 +222,11 @@ const Profile = () => {
         reviewSubmitHandler={reviewSubmitHandler}
         toggleRatingModal={toggleRatingModal}
       />
-      <BackDrop isOpen={isRatingVisible} />
+      <ProfileModal
+        isOpen={isProfileVisible}
+        toggleProfileModal={toggleProfileModal}
+      />
+      <BackDrop isOpen={isRatingVisible || isProfileVisible} />
     </div>
   );
 };

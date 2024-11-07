@@ -136,9 +136,22 @@ export default function Dashboard() {
       {totalBooking?.data.map(({ status, count }) => (
         <Col span={8} key={status}>
           <Card
-            title={`Bookings ${status}`}
-            bordered={false}
+            title={
+              <Typography.Text
+                strong
+                italic
+                style={{
+                  color: BOOKING_STATUS_INFO[status].color,
+                  fontSize: 16,
+                }}
+              >{`Bookings ${status}`}</Typography.Text>
+            }
+            bordered={true}
             loading={loadingBookings}
+            style={{
+              borderColor: BOOKING_STATUS_INFO[status].color,
+              borderWidth: 2,
+            }}
           >
             <Typography.Title
               level={2}
@@ -179,7 +192,7 @@ export default function Dashboard() {
               />
             </Row>
           }
-          bordered={false}
+          bordered={true}
         >
           <Row gutter={16}>
             <Col span={15}>

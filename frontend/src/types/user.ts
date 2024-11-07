@@ -10,12 +10,14 @@ export interface User {
   updatedAt: Date;
 }
 
-export interface UserForm {
-  email: string;
-  username: string;
-  password: string;
+export interface UpdateProfile {
+  username?: string;
   phone?: string;
-  isAdmin?: boolean;
+}
+
+export interface ChangePassword {
+  oldPassword: string;
+  newPassword: string;
 }
 
 export type GetListParamsUser = GetListParams<object>;

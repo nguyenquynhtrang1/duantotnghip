@@ -12,7 +12,7 @@ const createUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = await User.create({ username, email, password: hashedPassword, isAdmin, phone });
         user.password = undefined;
-        res.status(201).json({ data: user, message: "User created successfully" });
+        return res.status(201).json({ data: user, message: "User created successfully" });
 
     } catch (error) {
         console.log("🚀 ~ createUser ~ error:", error)
@@ -43,7 +43,7 @@ const getUsers = async (req, res) => {
             .limit(limit * 1)
             .skip((page - 1) * limit);
         const total = await User.countDocuments(conditions);
-        res.status(200).json({ data: users, page, limit, total, message: "Users retrieved successfully" });
+        return res.status(200).json({ data: users, page, limit, total, message: "Users retrieved successfully" });
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
     }
@@ -57,7 +57,7 @@ const getUser = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: "User does not exist" });
         }
-        res.status(200).json({ data: user, message: "User retrieved successfully" });
+        return res.status(200).json({ data: user, message: "User retrieved successfully" });
     }
     catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
@@ -77,7 +77,7 @@ const updateUser = async (req, res) => {
     const { id } = req.params;
     try {
         const user = await User.findByIdAndUpdate(id, req.body, { new: true }).select('-password');
-        res.status(200).json({ data: user, message: "User updated successfully" });
+        return res.status(200).json({ data: user, message: "User updated successfully" });
     }
     catch (error) {
         console.log("🚀 ~ updateUser ~ error:", error)
@@ -92,7 +92,7 @@ const deleteUser = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: "User does not exist" });
         }
-        res.status(200).json({ message: "User deleted successfully" });
+        return res.status(200).json({ message: "User deleted successfully" });
     }
     catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
@@ -101,12 +101,15 @@ const deleteUser = async (req, res) => {
 
 // chane password user
 const changePassword = async (req, res) => {
-    console.log(req.user)
     const { oldPassword, newPassword } = req.body;
     try {
         const user = await User.findOne({ _id: req.user._id });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (oldPassword === newPassword) {
+            return res.status(400).json({ message: "New password must be different from old password" });
         }
 
         const isMatch = await bcrypt.compare(oldPassword, user.password);
@@ -117,13 +120,29 @@ const changePassword = async (req, res) => {
         user.password = await bcrypt.hash(newPassword, 10);
         await user.save();
 
-        res.status(200).json({ message: "Password changed successfully" });
+        return res.status(200).json({ message: "Password changed successfully" });
     } catch (err) {
         console.log("🚀 ~ changePassword ~ err:", err)
         res.status(500).json({ message: "Something went wrong" });
     }
 }
 
+// update user profile
+const updateProfile = async (req, res) => {
+    const { username, phone } = req.body;
+    try {
+        const user = await User.findOne({ _id: req.user._id });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const newUser = await User.findByIdAndUpdate(req.user._id, { username, phone }, { new: true }).select('-password');
+        console.log("🚀 ~ updateProfile ~ newUser:", newUser)
+        return res.status(200).json({ data: newUser, message: "Profile updated successfully" });
+    } catch (error) {
+        console.log("🚀 ~ updateProfile ~ error:", error)
+        return res.status(500).json({ message: "Something went wrong" });
+    }
+}
 const getTotal = async (req, res) => {
     try {
         const total = await User.countDocuments();
@@ -133,5 +152,5 @@ const getTotal = async (req, res) => {
     }
 }
 
-export { createUser, getProfile, getUsers, getUser, updateUser, deleteUser, changePassword, getTotal };
+export { createUser, getProfile, getUsers, getUser, updateUser, deleteUser, changePassword, updateProfile, getTotal };
 
