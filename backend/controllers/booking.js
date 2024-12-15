@@ -476,7 +476,7 @@ const createUrlPayment = async (req, res) => {
         "&ipnUrl=" +
         ipnUrl +
         "&orderId=" +
-        booking._id +
+        booking._id + ':' + new Date().getTime() +
         "&orderInfo=" +
         orderInfo +
         "&partnerCode=" +
@@ -500,7 +500,7 @@ const createUrlPayment = async (req, res) => {
         storeId: "MomoTestStore",
         requestId: requestId,
         amount: booking.totalCost,
-        orderId: booking._id,
+        orderId: booking._id + ':' + new Date().getTime(),
         orderInfo: orderInfo,
         redirectUrl: `${process.env.FRONTEND_URL}/profile`,
         ipnUrl: ipnUrl,
@@ -534,7 +534,9 @@ const paymentWebhook = async (req, res) => {
         resultCode,
     } = req.body;
 
-    await Booking.findByIdAndUpdate(orderId, {
+    const bookingId = orderId.split(':')[0];
+
+    await Booking.findByIdAndUpdate(bookingId, {
         status: resultCode === 0 ? "Confirmed" : "Cancelled"
     });
     return res.json({ message: "Payment webhook received" });
