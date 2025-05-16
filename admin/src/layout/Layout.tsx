@@ -128,7 +128,7 @@ const CustomLayout = ({ children }: { children: React.ReactNode }) => {
               italic
               style={{ fontSize: 26, color: "#3d8000f2" }}
             >
-              Kayla Homestay
+              Verdant Homestay
             </Typography.Text>
           )}
         </Flex>

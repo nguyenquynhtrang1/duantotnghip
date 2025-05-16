@@ -22,7 +22,7 @@ const Header = () => {
     <header className="py-6 px-4 container mx-auto text-xl flex flex-wrap md:flex-nowrap items-center justify-between">
       <div className="flex items-center w-full md:2/3">
         <Link to="/" className="font-black text-[#026057] text-3xl mr-3">
-          Kayla Homestay
+          Verdant Homestay
         </Link>
         {darkTheme ? (
           <MdOutlineLightMode

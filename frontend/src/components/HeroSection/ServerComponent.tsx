@@ -2,14 +2,15 @@ export const heading1 = (
   <>
     <h1 className="font-heading mb-6">Explore Our Exquisite Homestay</h1>
     <p className="text-[#4a4a4a] dark:text-[#ffffffea] mb-10 max-w-3xl">
-      Featuring pool with a view and views of garden, Kayla Homestay - Venue
-      Travel is a sustainable villa located in Ba Vì, 38 km from My Dinh
-      Stadium. It is situated 41 km from Vincom Center Nguyen Chi Thanh and
-      features a shared kitchen. The villa provides pool views, a picnic area, a
-      24-hour front desk, and free WiFi is available throughout the property.
-      The accommodation comes with a flat-screen TV and a private bathroom with
-      bidet, shower and free toiletries, while the kitchen features a fridge and
-      a stovetop.
+      Our homestay offers a peaceful escape surrounded by nature, with a variety
+      of comfortable room types that feature beautiful garden or mountain views.
+      Guests can enjoy the convenience of a fully equipped kitchen to prepare
+      their own meals, as well as relax with large-screen TVs available in every
+      room for cozy entertainment. For those who love the outdoors, our
+      refreshing swimming pool provides the perfect place to unwind and take in
+      the tranquil surroundings. Whether you’re looking for comfort,
+      convenience, or a touch of nature, our homestay has everything you need
+      for a relaxing and memorable stay.
     </p>
   </>
 );

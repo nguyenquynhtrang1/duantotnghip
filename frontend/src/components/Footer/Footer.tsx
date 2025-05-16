@@ -5,20 +5,18 @@ const Footer = () => {
     <Element className="element" name="footer">
       <footer className="mt-16 element">
         <div className="container mx-auto px-4">
-          <p className="font-black text-[#026057] text-2xl">Kayla Homestay</p>
+          <p className="font-black text-[#026057] text-2xl">Verdant Homestay</p>
           <h4 className="font-semibold text-[40px] py-6">Contact</h4>
 
           <div className="flex flex-wrap gap-16 items-center justify-between">
             <div className="flex-1">
               <ul>
-                <li className="mb-2">
-                  Full name: Kayla Homestay – Nhà của cây lá
-                </li>
+                <li className="mb-2">Full name: Verdant Homestay</li>
                 <li className="mb-2">Business Line: Kinh doanh nhà nghỉ</li>
-                <li className="mb-2">Official year of operation: 2019</li>
-                <li className="mb-2">Address: Km1, Yên Bài, Ba Vì, Hà Nội</li>
-                <li className="mb-2">Hotline: 092 205 1096</li>
-                <li>Email: mycth.aichill@gmail.com</li>
+                <li className="mb-2">Office year of operation: 2025</li>
+                <li className="mb-2">Address: Hà nội</li>
+                <li className="mb-2">Hotline: 0385682408</li>
+                <li>Email: ngocmg.work@gmail.com</li>
               </ul>
             </div>
 

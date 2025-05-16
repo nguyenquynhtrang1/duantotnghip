@@ -465,6 +465,7 @@ const createUrlPayment = async (req, res) => {
     }
 
     const requestId = partnerCode + new Date().getTime();
+    const orderId = booking._id + ':' + new Date().getTime();
 
     var rawSignature =
         "accessKey=" +
@@ -476,7 +477,7 @@ const createUrlPayment = async (req, res) => {
         "&ipnUrl=" +
         ipnUrl +
         "&orderId=" +
-        booking._id + ':' + new Date().getTime() +
+        orderId +
         "&orderInfo=" +
         orderInfo +
         "&partnerCode=" +
@@ -500,7 +501,7 @@ const createUrlPayment = async (req, res) => {
         storeId: "MomoTestStore",
         requestId: requestId,
         amount: booking.totalCost,
-        orderId: booking._id + ':' + new Date().getTime(),
+        orderId: orderId,
         orderInfo: orderInfo,
         redirectUrl: `${process.env.FRONTEND_URL}/profile`,
         ipnUrl: ipnUrl,

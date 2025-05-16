@@ -54,8 +54,8 @@ export default function Login() {
               Sign in
             </Typography.Title>
             <Typography.Text italic>
-              Welcome back to Kayla Homestay! Please enter your details below to
-              sign in.
+              Welcome back to Verdant Homestay! Please enter your details below
+              to sign in.
             </Typography.Text>
             <Form
               name="login"
